@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1a3a5c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Control DP">
+  <meta name="description" content="Sistema profesional de gestión de Derechos de Petición para abogados">
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  
+  <title>Control Derechos de Petición</title>
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #1a3a5c;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    #loader {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, #1a3a5c 0%, #2c5282 50%, #1a3a5c 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    
+    #loader.hidden {
+      opacity: 0;
+      transform: scale(1.1);
+      pointer-events: none;
+    }
+    
+    .loader-content {
+      text-align: center;
+      animation: fadeInUp 0.8s ease;
+    }
+    
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .loader-icon {
+      font-size: 80px;
+      margin-bottom: 24px;
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+      animation: scalePulse 2s ease infinite;
+    }
+    
+    @keyframes scalePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+    
+    .loader-title {
+      color: white;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .loader-subtitle {
+      color: rgba(255,255,255,0.7);
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 32px;
+    }
+    
+    .loader-bar-container {
+      width: 240px;
+      height: 4px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 0 auto;
+    }
+    
+    .loader-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 4px;
+      animation: loadProgress 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    
+    @keyframes loadProgress {
+      0% { width: 0%; }
+      50% { width: 70%; }
+      100% { width: 100%; }
+    }
+    
+    .loader-status {
+      color: rgba(255,255,255,0.5);
+      font-size: 12px;
+      margin-top: 16px;
+      font-weight: 500;
+    }
+    
+    #app-frame {
+      width: 100vw;
+      height: 100vh;
+      border: none;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    
+    #app-frame.visible {
+      display: block;
+      opacity: 1;
+    }
+    
+    #install-banner {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #1a3a5c 0%, #2c5282 100%);
+      color: white;
+      padding: 16px 20px;
+      border-radius: 16px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      z-index: 10000;
+      box-shadow: 0 8px 32px rgba(26, 58, 92, 0.4);
+      animation: slideUpBanner 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    #install-banner.show {
+      display: flex;
+    }
+    
+    @keyframes slideUpBanner {
+      from { transform: translateY(100px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .install-text {
+      font-size: 15px;
+      font-weight: 600;
+      flex: 1;
+    }
+    
+    .install-btn {
+      background: white;
+      color: #1a3a5c;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform 0.2s;
+    }
+    
+    .install-btn:active {
+      transform: scale(0.95);
+    }
+    
+    .install-close {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.6);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+    }
+    
+    #offline-indicator {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #ff3b30;
+      color: white;
+      text-align: center;
+      padding: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 10001;
+      transform: translateY(-100%);
+      transition: transform 0.3s ease;
+    }
+    
+    #offline-indicator.show {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loader">
+    <div class="loader-content">
+      <div class="loader-icon">⚖️</div>
+      <div class="loader-title">Control Derechos de Petición</div>
+      <div class="loader-subtitle">Sistema de gestión para abogados</div>
+      <div class="loader-bar-container">
+        <div class="loader-bar"></div>
+      </div>
+      <div class="loader-status" id="loaderStatus">Iniciando sesión...</div>
+    </div>
+  </div>
+
+  <!-- ⚠️ REEMPLAZA ESTA URL CON LA TUYA DE APPS SCRIPT -->
+  <iframe 
+    id="app-frame" 
+    src="https://script.google.com/macros/s/AKfycbx61zu4kWXWI0VJopHPx8iF0LmdYiG24pR8nFy0DTz5wFuCCl7ihU-peXLMPIOuDvUEmQ/exec"
+    allow="fullscreen; camera; microphone; geolocation"
+    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"
+    loading="eager"
+    importance="high">
+  </iframe>
+
+  <div id="install-banner">
+    <span class="install-text">📲 Instala Control DP en tu pantalla de inicio</span>
+    <button class="install-btn" id="installBtn">Instalar</button>
+    <button class="install-close" onclick="closeInstallBanner()">×</button>
+  </div>
+
+  <div id="offline-indicator">📴 Sin conexión a internet</div>
+
+  <script>
+    // ⚠️ REEMPLAZA ESTA URL CON LA TUYA DE APPS SCRIPT
+    const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx61zu4kWXWI0VJopHPx8iF0LmdYiG24pR8nFy0DTz5wFuCCl7ihU-peXLMPIOuDvUEmQ/exec';
+    
+    const loader = document.getElementById('loader');
+    const appFrame = document.getElementById('app-frame');
+    const loaderStatus = document.getElementById('loaderStatus');
+    
+    const statusMessages = [
+      { time: 0, text: 'Iniciando sesión...' },
+      { time: 800, text: 'Cargando módulos...' },
+      { time: 1600, text: 'Conectando con servidor...' },
+      { time: 2200, text: 'Preparando interfaz...' }
+    ];
+    
+    statusMessages.forEach(({ time, text }) => {
+      setTimeout(() => { loaderStatus.textContent = text; }, time);
+    });
+    
+    appFrame.onload = function() {
+      setTimeout(() => {
+        loader.classList.add('hidden');
+        appFrame.classList.add('visible');
+      }, 2800);
+    };
+    
+    setTimeout(() => {
+      if (!appFrame.classList.contains('visible')) {
+        loader.classList.add('hidden');
+        appFrame.classList.add('visible');
+      }
+    }, 5000);
+    
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(registration => {
+            console.log('SW registrado:', registration.scope);
+          })
+          .catch(error => {
+            console.log('SW error:', error);
+          });
+      });
+    }
+    
+    let deferredPrompt = null;
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      setTimeout(() => {
+        document.getElementById('install-banner').classList.add('show');
+      }, 4000);
+    });
+    
+    document.getElementById('installBtn').addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        console.log('Usuario instaló la app');
+      }
+      deferredPrompt = null;
+      closeInstallBanner();
+    });
+    
+    function closeInstallBanner() {
+      document.getElementById('install-banner').classList.remove('show');
+    }
+    
+    window.addEventListener('appinstalled', () => {
+      console.log('App instalada');
+      deferredPrompt = null;
+      closeInstallBanner();
+    });
+    
+    const offlineIndicator = document.getElementById('offline-indicator');
+    
+    function updateOnlineStatus() {
+      if (navigator.onLine) {
+        offlineIndicator.classList.remove('show');
+      } else {
+        offlineIndicator.classList.add('show');
+      }
+    }
+    
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
+    
+    document.body.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+    }, { passive: false });
+    
+    console.log('%c⚖️ Control Derechos de Petición', 'color: #1a3a5c; font-size: 20px; font-weight: bold;');
+    console.log('%cSistema de gestión para abogados', 'color: #666; font-size: 12px;');
+  </script>
+
+</body>
+</html>
