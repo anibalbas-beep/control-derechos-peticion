@@ -4,10 +4,9 @@
   "description": "Sistema profesional de gestión de Derechos de Petición para abogados",
   "start_url": "/control-derechos-peticion/",
   "display": "standalone",
-  "background_color": "#1a3a5c",
   "theme_color": "#1a3a5c",
+  "background_color": "#1a3a5c",
   "orientation": "portrait",
-  "scope": "/control-derechos-peticion/",
   "icons": [
     {
       "src": "icons/icon-192.png",
@@ -21,9 +20,5 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ],
-  "categories": ["business", "productivity", "utilities"],
-  "lang": "es",
-  "dir": "ltr",
-  "prefer_related_applications": false
+  ]
 }
