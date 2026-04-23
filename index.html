@@ -1,11 +1,623 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0; url=https://script.google.com/macros/s/AKfycbx61zu4kWXWI0VJopHPx8iF0LmdYiG24pR8nFy0DTz5wFuCCl7ihU-peXLMPIOuDvUEmQ/exec">
-  <title>Redirigiendo a Control Derechos de Petición...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#1a3a5c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Control DP">
+  <meta name="description" content="Sistema profesional de gestión de Derechos de Petición para abogados">
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  
+  <title>Control Derechos de Petición</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      padding: 20px;
+      padding-bottom: 80px;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #1a3a5c 0%, #2c5282 100%);
+      color: white;
+      padding: 24px 20px;
+      border-radius: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header p {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-top: 8px;
+    }
+
+    /* Stats cards */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 16px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .stat-number {
+      font-size: 32px;
+      font-weight: 800;
+      color: #2c5282;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    /* Form */
+    .form-card {
+      background: white;
+      border-radius: 24px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .form-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #1a3a5c;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #ddd;
+      border-radius: 14px;
+      font-size: 15px;
+      font-family: inherit;
+      margin-bottom: 12px;
+      transition: all 0.2s;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #2c5282;
+      box-shadow: 0 0 0 3px rgba(44,82,130,0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    button {
+      background: linear-gradient(135deg, #2c5282 0%, #1a3a5c 100%);
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.2s;
+      width: 100%;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button.secondary {
+      background: #e2e8f0;
+      color: #1a3a5c;
+    }
+
+    .btn-small {
+      width: auto;
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+
+    /* Search */
+    .search-box {
+      margin-bottom: 20px;
+    }
+
+    .search-box input {
+      margin-bottom: 0;
+      padding-left: 40px;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%23999" stroke-width="2"><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>');
+      background-repeat: no-repeat;
+      background-position: 14px center;
+    }
+
+    /* List */
+    .list-container {
+      background: white;
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .list-header {
+      font-weight: 700;
+      font-size: 18px;
+      margin-bottom: 16px;
+      color: #1a3a5c;
+    }
+
+    .peticion-item {
+      border-bottom: 1px solid #eee;
+      padding: 16px 0;
+      transition: background 0.2s;
+    }
+
+    .peticion-item:last-child {
+      border-bottom: none;
+    }
+
+    .peticion-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .peticion-numero {
+      font-weight: 800;
+      color: #2c5282;
+      font-size: 14px;
+      background: #e8f0fe;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .peticion-fecha {
+      font-size: 11px;
+      color: #999;
+    }
+
+    .peticion-titulo {
+      font-weight: 600;
+      font-size: 16px;
+      margin: 8px 0 6px;
+    }
+
+    .peticion-descripcion {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .peticion-estado {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+
+    .estado-pendiente { background: #fef3c7; color: #d97706; }
+    .estado-respondido { background: #d1fae5; color: #059669; }
+    .estado-vencido { background: #fee2e2; color: #dc2626; }
+
+    .peticion-acciones {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .btn-icon {
+      width: auto;
+      padding: 6px 14px;
+      font-size: 12px;
+      background: #f1f5f9;
+      color: #1a3a5c;
+    }
+
+    .btn-delete {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+    }
+
+    /* Filter tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      background: #e2e8f0;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: #2c5282;
+      color: white;
+    }
+  </style>
 </head>
 <body>
-  <p>Redirigiendo a la aplicación...</p>
+
+<div class="header">
+  <h1>
+    <span>⚖️</span>
+    Control Derechos de Petición
+  </h1>
+  <p>Sistema de gestión para abogados</p>
+</div>
+
+<div class="stats">
+  <div class="stat-card">
+    <div class="stat-number" id="totalCount">0</div>
+    <div class="stat-label">Total DP</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number" id="pendienteCount">0</div>
+    <div class="stat-label">Pendientes</div>
+  </div>
+</div>
+
+<div class="form-card">
+  <div class="form-title">➕ Nueva Petición</div>
+  <input type="text" id="numeroInput" placeholder="Número de radicado *">
+  <input type="text" id="tituloInput" placeholder="Título / Asunto *">
+  <textarea id="descripcionInput" placeholder="Descripción detallada..."></textarea>
+  <input type="date" id="fechaLimiteInput">
+  <select id="estadoInput">
+    <option value="pendiente">Pendiente</option>
+    <option value="respondido">Respondido</option>
+    <option value="vencido">Vencido</option>
+  </select>
+  <button id="saveBtn">📌 Guardar Petición</button>
+</div>
+
+<div class="search-box">
+  <input type="text" id="searchInput" placeholder="🔍 Buscar por número, título o descripción...">
+</div>
+
+<div class="list-container">
+  <div class="list-header">📋 Mis Derechos de Petición</div>
+  
+  <div class="tabs">
+    <div class="tab active" data-filter="all">Todos</div>
+    <div class="tab" data-filter="pendiente">Pendientes</div>
+    <div class="tab" data-filter="respondido">Respondidos</div>
+    <div class="tab" data-filter="vencido">Vencidos</div>
+  </div>
+  
+  <div id="peticionesList">
+    <div class="empty-state">No hay peticiones registradas</div>
+  </div>
+</div>
+
+<script>
+  // Clave para localStorage
+  const STORAGE_KEY = 'derechos_peticion_app';
+  
+  // Estado global
+  let peticiones = [];
+  let currentFilter = 'all';
+  let searchTerm = '';
+  let editingId = null;
+  
+  // Elementos DOM
+  const totalCountEl = document.getElementById('totalCount');
+  const pendienteCountEl = document.getElementById('pendienteCount');
+  const peticionesListEl = document.getElementById('peticionesList');
+  const numeroInput = document.getElementById('numeroInput');
+  const tituloInput = document.getElementById('tituloInput');
+  const descripcionInput = document.getElementById('descripcionInput');
+  const fechaLimiteInput = document.getElementById('fechaLimiteInput');
+  const estadoInput = document.getElementById('estadoInput');
+  const saveBtn = document.getElementById('saveBtn');
+  const searchInput = document.getElementById('searchInput');
+  
+  // Cargar datos al iniciar
+  function loadData() {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      peticiones = JSON.parse(stored);
+    } else {
+      // Datos de ejemplo
+      peticiones = [
+        {
+          id: Date.now(),
+          numero: 'DP-2024-001',
+          titulo: 'Solicitud de información pública',
+          descripcion: 'Solicito copia de los documentos relacionados con el contrato...',
+          fechaLimite: '2024-12-15',
+          estado: 'pendiente',
+          fechaCreacion: new Date().toISOString()
+        },
+        {
+          id: Date.now() + 1,
+          numero: 'DP-2024-002',
+          titulo: 'Derecho de petición por servicio',
+          descripcion: 'Solicito la reparación del alumbrado público en la carrera 15...',
+          fechaLimite: '2024-12-20',
+          estado: 'pendiente',
+          fechaCreacion: new Date().toISOString()
+        }
+      ];
+      saveData();
+    }
+    renderStats();
+    renderList();
+  }
+  
+  function saveData() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(peticiones));
+  }
+  
+  function renderStats() {
+    totalCountEl.textContent = peticiones.length;
+    const pendientes = peticiones.filter(p => p.estado === 'pendiente').length;
+    pendienteCountEl.textContent = pendientes;
+  }
+  
+  function getFilteredPeticiones() {
+    let filtered = [...peticiones];
+    
+    // Aplicar filtro por estado
+    if (currentFilter !== 'all') {
+      filtered = filtered.filter(p => p.estado === currentFilter);
+    }
+    
+    // Aplicar búsqueda
+    if (searchTerm.trim() !== '') {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(p => 
+        p.numero.toLowerCase().includes(term) ||
+        p.titulo.toLowerCase().includes(term) ||
+        p.descripcion.toLowerCase().includes(term)
+      );
+    }
+    
+    // Ordenar por fecha de creación (más reciente primero)
+    filtered.sort((a, b) => new Date(b.fechaCreacion) - new Date(a.fechaCreacion));
+    
+    return filtered;
+  }
+  
+  function getEstadoClass(estado) {
+    switch(estado) {
+      case 'pendiente': return 'estado-pendiente';
+      case 'respondido': return 'estado-respondido';
+      case 'vencido': return 'estado-vencido';
+      default: return '';
+    }
+  }
+  
+  function getEstadoTexto(estado) {
+    switch(estado) {
+      case 'pendiente': return '⏳ Pendiente';
+      case 'respondido': return '✅ Respondido';
+      case 'vencido': return '⚠️ Vencido';
+      default: return estado;
+    }
+  }
+  
+  function formatFecha(dateStr) {
+    if (!dateStr) return 'Sin fecha límite';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('es-CO');
+  }
+  
+  function renderList() {
+    const filtered = getFilteredPeticiones();
+    
+    if (filtered.length === 0) {
+      peticionesListEl.innerHTML = '<div class="empty-state">📭 No hay peticiones que coincidan con tu búsqueda</div>';
+      return;
+    }
+    
+    peticionesListEl.innerHTML = filtered.map(peticion => `
+      <div class="peticion-item" data-id="${peticion.id}">
+        <div class="peticion-header">
+          <span class="peticion-numero">${escapeHtml(peticion.numero)}</span>
+          <span class="peticion-fecha">${formatFecha(peticion.fechaLimite)}</span>
+        </div>
+        <div class="peticion-titulo">${escapeHtml(peticion.titulo)}</div>
+        <div class="peticion-descripcion">${escapeHtml(peticion.descripcion.substring(0, 100))}${peticion.descripcion.length > 100 ? '...' : ''}</div>
+        <div>
+          <span class="peticion-estado ${getEstadoClass(peticion.estado)}">${getEstadoTexto(peticion.estado)}</span>
+        </div>
+        <div class="peticion-acciones">
+          <button class="btn-icon btn-edit" data-id="${peticion.id}">✏️ Editar</button>
+          <button class="btn-icon btn-delete" data-id="${peticion.id}">🗑️ Eliminar</button>
+        </div>
+      </div>
+    `).join('');
+    
+    // Agregar event listeners a los botones
+    document.querySelectorAll('.btn-edit').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = parseInt(btn.dataset.id);
+        editPeticion(id);
+      });
+    });
+    
+    document.querySelectorAll('.btn-delete').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = parseInt(btn.dataset.id);
+        deletePeticion(id);
+      });
+    });
+  }
+  
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+  
+  function savePeticion() {
+    const numero = numeroInput.value.trim();
+    const titulo = tituloInput.value.trim();
+    const descripcion = descripcionInput.value.trim();
+    const fechaLimite = fechaLimiteInput.value;
+    const estado = estadoInput.value;
+    
+    if (!numero || !titulo) {
+      alert('⚠️ Por favor completa el número de radicado y el título');
+      return;
+    }
+    
+    if (editingId) {
+      // Editar existente
+      const index = peticiones.findIndex(p => p.id === editingId);
+      if (index !== -1) {
+        peticiones[index] = {
+          ...peticiones[index],
+          numero,
+          titulo,
+          descripcion,
+          fechaLimite,
+          estado
+        };
+      }
+      editingId = null;
+      saveBtn.textContent = '📌 Guardar Petición';
+    } else {
+      // Crear nueva
+      const nuevaPeticion = {
+        id: Date.now(),
+        numero,
+        titulo,
+        descripcion,
+        fechaLimite,
+        estado,
+        fechaCreacion: new Date().toISOString()
+      };
+      peticiones.unshift(nuevaPeticion);
+    }
+    
+    saveData();
+    clearForm();
+    renderStats();
+    renderList();
+  }
+  
+  function editPeticion(id) {
+    const peticion = peticiones.find(p => p.id === id);
+    if (!peticion) return;
+    
+    numeroInput.value = peticion.numero;
+    tituloInput.value = peticion.titulo;
+    descripcionInput.value = peticion.descripcion || '';
+    fechaLimiteInput.value = peticion.fechaLimite || '';
+    estadoInput.value = peticion.estado;
+    
+    editingId = id;
+    saveBtn.textContent = '✏️ Actualizar Petición';
+    
+    // Scroll al formulario
+    document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth' });
+  }
+  
+  function deletePeticion(id) {
+    if (confirm('¿Estás seguro de eliminar esta petición?')) {
+      peticiones = peticiones.filter(p => p.id !== id);
+      saveData();
+      renderStats();
+      renderList();
+      if (editingId === id) {
+        clearForm();
+      }
+    }
+  }
+  
+  function clearForm() {
+    numeroInput.value = '';
+    tituloInput.value = '';
+    descripcionInput.value = '';
+    fechaLimiteInput.value = '';
+    estadoInput.value = 'pendiente';
+    editingId = null;
+    saveBtn.textContent = '📌 Guardar Petición';
+  }
+  
+  // Event listeners
+  saveBtn.addEventListener('click', savePeticion);
+  
+  searchInput.addEventListener('input', (e) => {
+    searchTerm = e.target.value;
+    renderList();
+  });
+  
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentFilter = tab.dataset.filter;
+      renderList();
+    });
+  });
+  
+  // Inicializar
+  loadData();
+  
+  // Service Worker para PWA
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      console.log('Service Worker registrado:', reg.scope);
+    }).catch(err => {
+      console.log('Error SW:', err);
+    });
+  }
+</script>
+
 </body>
 </html>
