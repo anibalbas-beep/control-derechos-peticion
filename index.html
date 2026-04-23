@@ -29,7 +29,6 @@
       padding-bottom: 80px;
     }
 
-    /* Header */
     .header {
       background: linear-gradient(135deg, #1a3a5c 0%, #2c5282 100%);
       color: white;
@@ -53,7 +52,6 @@
       margin-top: 8px;
     }
 
-    /* Stats cards */
     .stats {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -81,7 +79,6 @@
       margin-top: 4px;
     }
 
-    /* Form */
     .form-card {
       background: white;
       border-radius: 24px;
@@ -136,18 +133,12 @@
       transform: scale(0.98);
     }
 
-    button.secondary {
-      background: #e2e8f0;
-      color: #1a3a5c;
-    }
-
     .btn-small {
       width: auto;
       padding: 8px 16px;
       font-size: 13px;
     }
 
-    /* Search */
     .search-box {
       margin-bottom: 20px;
     }
@@ -160,7 +151,6 @@
       background-position: 14px center;
     }
 
-    /* List */
     .list-container {
       background: white;
       border-radius: 24px;
@@ -178,7 +168,6 @@
     .peticion-item {
       border-bottom: 1px solid #eee;
       padding: 16px 0;
-      transition: background 0.2s;
     }
 
     .peticion-item:last-child {
@@ -257,7 +246,6 @@
       color: #999;
     }
 
-    /* Filter tabs */
     .tabs {
       display: flex;
       gap: 8px;
@@ -273,7 +261,6 @@
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
     }
 
     .tab.active {
@@ -337,16 +324,12 @@
 </div>
 
 <script>
-  // Clave para localStorage
   const STORAGE_KEY = 'derechos_peticion_app';
-  
-  // Estado global
   let peticiones = [];
   let currentFilter = 'all';
   let searchTerm = '';
   let editingId = null;
-  
-  // Elementos DOM
+
   const totalCountEl = document.getElementById('totalCount');
   const pendienteCountEl = document.getElementById('pendienteCount');
   const peticionesListEl = document.getElementById('peticionesList');
@@ -357,20 +340,18 @@
   const estadoInput = document.getElementById('estadoInput');
   const saveBtn = document.getElementById('saveBtn');
   const searchInput = document.getElementById('searchInput');
-  
-  // Cargar datos al iniciar
+
   function loadData() {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       peticiones = JSON.parse(stored);
     } else {
-      // Datos de ejemplo
       peticiones = [
         {
           id: Date.now(),
           numero: 'DP-2024-001',
           titulo: 'Solicitud de información pública',
-          descripcion: 'Solicito copia de los documentos relacionados con el contrato...',
+          descripcion: 'Solicito copia de los documentos relacionados con el contrato de obra pública No. 2024-001',
           fechaLimite: '2024-12-15',
           estado: 'pendiente',
           fechaCreacion: new Date().toISOString()
@@ -379,7 +360,7 @@
           id: Date.now() + 1,
           numero: 'DP-2024-002',
           titulo: 'Derecho de petición por servicio',
-          descripcion: 'Solicito la reparación del alumbrado público en la carrera 15...',
+          descripcion: 'Solicito la reparación del alumbrado público en la carrera 15 con calle 20',
           fechaLimite: '2024-12-20',
           estado: 'pendiente',
           fechaCreacion: new Date().toISOString()
@@ -390,26 +371,24 @@
     renderStats();
     renderList();
   }
-  
+
   function saveData() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(peticiones));
   }
-  
+
   function renderStats() {
     totalCountEl.textContent = peticiones.length;
     const pendientes = peticiones.filter(p => p.estado === 'pendiente').length;
     pendienteCountEl.textContent = pendientes;
   }
-  
+
   function getFilteredPeticiones() {
     let filtered = [...peticiones];
     
-    // Aplicar filtro por estado
     if (currentFilter !== 'all') {
       filtered = filtered.filter(p => p.estado === currentFilter);
     }
     
-    // Aplicar búsqueda
     if (searchTerm.trim() !== '') {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(p => 
@@ -419,36 +398,44 @@
       );
     }
     
-    // Ordenar por fecha de creación (más reciente primero)
     filtered.sort((a, b) => new Date(b.fechaCreacion) - new Date(a.fechaCreacion));
-    
     return filtered;
   }
-  
+
   function getEstadoClass(estado) {
-    switch(estado) {
-      case 'pendiente': return 'estado-pendiente';
-      case 'respondido': return 'estado-respondido';
-      case 'vencido': return 'estado-vencido';
-      default: return '';
-    }
+    const clases = {
+      'pendiente': 'estado-pendiente',
+      'respondido': 'estado-respondido',
+      'vencido': 'estado-vencido'
+    };
+    return clases[estado] || '';
   }
-  
+
   function getEstadoTexto(estado) {
-    switch(estado) {
-      case 'pendiente': return '⏳ Pendiente';
-      case 'respondido': return '✅ Respondido';
-      case 'vencido': return '⚠️ Vencido';
-      default: return estado;
-    }
+    const textos = {
+      'pendiente': '⏳ Pendiente',
+      'respondido': '✅ Respondido',
+      'vencido': '⚠️ Vencido'
+    };
+    return textos[estado] || estado;
   }
-  
+
   function formatFecha(dateStr) {
     if (!dateStr) return 'Sin fecha límite';
     const date = new Date(dateStr);
     return date.toLocaleDateString('es-CO');
   }
-  
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+
   function renderList() {
     const filtered = getFilteredPeticiones();
     
@@ -458,7 +445,7 @@
     }
     
     peticionesListEl.innerHTML = filtered.map(peticion => `
-      <div class="peticion-item" data-id="${peticion.id}">
+      <div class="peticion-item">
         <div class="peticion-header">
           <span class="peticion-numero">${escapeHtml(peticion.numero)}</span>
           <span class="peticion-fecha">${formatFecha(peticion.fechaLimite)}</span>
@@ -475,10 +462,8 @@
       </div>
     `).join('');
     
-    // Agregar event listeners a los botones
     document.querySelectorAll('.btn-edit').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        e.stopPropagation();
         const id = parseInt(btn.dataset.id);
         editPeticion(id);
       });
@@ -486,23 +471,12 @@
     
     document.querySelectorAll('.btn-delete').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        e.stopPropagation();
         const id = parseInt(btn.dataset.id);
         deletePeticion(id);
       });
     });
   }
-  
-  function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>]/g, function(m) {
-      if (m === '&') return '&amp;';
-      if (m === '<') return '&lt;';
-      if (m === '>') return '&gt;';
-      return m;
-    });
-  }
-  
+
   function savePeticion() {
     const numero = numeroInput.value.trim();
     const titulo = tituloInput.value.trim();
@@ -516,7 +490,6 @@
     }
     
     if (editingId) {
-      // Editar existente
       const index = peticiones.findIndex(p => p.id === editingId);
       if (index !== -1) {
         peticiones[index] = {
@@ -531,7 +504,6 @@
       editingId = null;
       saveBtn.textContent = '📌 Guardar Petición';
     } else {
-      // Crear nueva
       const nuevaPeticion = {
         id: Date.now(),
         numero,
@@ -549,7 +521,7 @@
     renderStats();
     renderList();
   }
-  
+
   function editPeticion(id) {
     const peticion = peticiones.find(p => p.id === id);
     if (!peticion) return;
@@ -562,11 +534,9 @@
     
     editingId = id;
     saveBtn.textContent = '✏️ Actualizar Petición';
-    
-    // Scroll al formulario
     document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth' });
   }
-  
+
   function deletePeticion(id) {
     if (confirm('¿Estás seguro de eliminar esta petición?')) {
       peticiones = peticiones.filter(p => p.id !== id);
@@ -578,7 +548,7 @@
       }
     }
   }
-  
+
   function clearForm() {
     numeroInput.value = '';
     tituloInput.value = '';
@@ -588,8 +558,7 @@
     editingId = null;
     saveBtn.textContent = '📌 Guardar Petición';
   }
-  
-  // Event listeners
+
   saveBtn.addEventListener('click', savePeticion);
   
   searchInput.addEventListener('input', (e) => {
@@ -606,10 +575,8 @@
     });
   });
   
-  // Inicializar
   loadData();
   
-  // Service Worker para PWA
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').then(reg => {
       console.log('Service Worker registrado:', reg.scope);
